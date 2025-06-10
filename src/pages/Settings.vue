@@ -245,6 +245,7 @@ async function restoreAccount() {
     deletionDate.value = ''
     snackbar.value.text = 'Conta restaurada com sucesso!'
     snackbar.value.show = true
+    window.location.href = '/settings'
   } catch (error) {
     console.error('Erro ao restaurar conta:', error)
     snackbar.value.text = 'Erro ao restaurar a conta.'
@@ -410,4 +411,58 @@ async function confirmDeleteAccount() {
 .danger-title {
   color: #ff4d4d;
 }
+
+/* Ajustes somente para mobile */
+@media (max-width: 768px) {
+  .settings-container {
+    width: 95%;
+    margin: 1rem auto;
+    padding: 1rem;
+  }
+
+  .settings-title {
+    font-size: 1.3rem;
+    text-align: center;
+  }
+
+  .settings-subtitle {
+    text-align: center;
+    font-size: 0.95rem;
+  }
+
+  .settings-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .settings-card {
+    padding: 1rem;
+  }
+
+  .card-title {
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  .card-section-title {
+    font-size: 0.95rem;
+  }
+
+  .card-description {
+    font-size: 0.85rem;
+  }
+
+  .btn-action,
+  .btn-danger,
+  .restore-btn {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .danger-card {
+    margin-top: 1rem;
+  }
+}
+
 </style>

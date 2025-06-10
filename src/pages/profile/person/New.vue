@@ -206,4 +206,27 @@ async function enviar() {
   border-radius: 0.5rem !important;
   text-transform: none;
 }
+
+/* 📱 Mobile adjustments - só para telas pequenas */
+@media (max-width: 768px) {
+  .profile-form-container {
+    padding: 0 1rem;
+  }
+
+  .btn-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .save-btn,
+  .cancel-btn {
+    width: 100%;
+  }
+
+  .subtitle,
+  h1 {
+    text-align: center;
+  }
+}
 </style>

@@ -30,6 +30,9 @@
       </v-row>
 
       <div class="btn-row">
+         <v-btn variant="tonal" class="cancel-btn" @click="cancelar">
+          Cancelar
+        </v-btn>
         <v-btn
           color="primary"
           class="submit-btn"
@@ -37,9 +40,6 @@
           :loading="loading"
         >
           Enviar
-        </v-btn>
-        <v-btn variant="tonal" class="cancel-btn" @click="cancelar">
-          Cancelar
         </v-btn>
       </div>
 
@@ -217,5 +217,32 @@ async function enviar() {
 
 .custom-snackbar {
   font-size: 0.9rem;
+}
+/* Ajustes apenas para mobile */
+@media (max-width: 768px) {
+  .new-invitation-container {
+    width: 95%;
+    margin: 2rem auto;
+  }
+
+  .new-invitation-title,
+  .new-invitation-subtitle {
+    margin-left: 0;
+    text-align: center;
+  }
+
+  .btn-row {
+    flex-direction: column;
+    gap: 8px;
+    align-items: left;
+  }
+
+  .new-invitation-form .v-row {
+    flex-direction: column;
+  }
+
+  .new-invitation-form .v-col {
+    width: 100%;
+  }
 }
 </style>

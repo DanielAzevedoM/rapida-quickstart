@@ -195,4 +195,32 @@ onMounted(async () => {
   width: 100%;
   text-align: left;
 }
+
+@media (max-width: 768px) {
+  .profile-center-content {
+    margin-top: 30px; /* Menor topo no mobile */
+    padding: 0 1rem;
+    align-items: center; /* Centraliza os cards no mobile */
+  }
+
+  .header-area {
+    text-align: center;
+  }
+
+  .card-row {
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+  }
+
+  .profile-card {
+    min-width: 80%;
+    max-width: 90%;
+    padding: 24px 20px;
+  }
+
+  .info-text {
+    text-align: center;
+  }
+}
 </style>

@@ -92,6 +92,17 @@ onMounted(async () => {
   if (!auth.user) {
     await auth.fetchUser()
   }
+
+  // 🔥 Verifica se a conta está marcada para exclusão
+  const userRes = await fetch('http://localhost:3000/users/me', {
+    headers: { Authorization: `Bearer ${auth.token}` }
+  })
+  const userData = await userRes.json()
+  if (userData.deletedAt) {
+    router.replace('/dashboard')
+    return
+  }
+
   await checkAndLoadProfile()
 })
 
@@ -105,21 +116,11 @@ async function checkAndLoadProfile() {
 
     const profile = await res.json()
 
-    // ✅ Ajusta as datas para YYYY-MM-DD
-    if (profile.birthday) {
-      profile.birthday = profile.birthday.split('T')[0]
-    }
-    if (profile.rgIssuanceDate) {
-      profile.rgIssuanceDate = profile.rgIssuanceDate.split('T')[0]
-    }
-    if (profile.passportIssuanceDate) {
-      profile.passportIssuanceDate = profile.passportIssuanceDate.split('T')[0]
-    }
-    if (profile.passportExpirationDate) {
-      profile.passportExpirationDate = profile.passportExpirationDate.split('T')[0]
-    }
+    if (profile.birthday) profile.birthday = profile.birthday.split('T')[0]
+    if (profile.rgIssuanceDate) profile.rgIssuanceDate = profile.rgIssuanceDate.split('T')[0]
+    if (profile.passportIssuanceDate) profile.passportIssuanceDate = profile.passportIssuanceDate.split('T')[0]
+    if (profile.passportExpirationDate) profile.passportExpirationDate = profile.passportExpirationDate.split('T')[0]
 
-    // ✅ Remove campos que não devem ser atualizados
     delete profile._id
     delete profile.createdAt
     delete profile.updatedAt
@@ -225,5 +226,28 @@ async function enviar() {
   font-weight: 600;
   border-radius: 0.5rem !important;
   text-transform: none;
+}
+
+/* 📱 Mobile adjustments - só para telas pequenas */
+@media (max-width: 768px) {
+  .profile-form-container {
+    padding: 0 1rem;
+  }
+
+  .btn-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .save-btn,
+  .cancel-btn {
+    width: 100%;
+  }
+
+  .subtitle,
+  h1 {
+    text-align: center;
+  }
 }
 </style>

@@ -287,4 +287,7 @@ async function deleteInvitation(inviteId) {
   text-transform: none;
   border-radius: 4px;
 }
+
+
+
 </style>

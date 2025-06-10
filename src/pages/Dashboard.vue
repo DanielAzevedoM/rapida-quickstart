@@ -164,6 +164,7 @@ async function restoreAccount() {
   width: 150vh;
   padding: 24px;
 }
+
 .dashboard-title {
   font-size: 2rem;
   font-weight: 600;
@@ -171,14 +172,17 @@ async function restoreAccount() {
   margin-bottom: 8px;
   color: #ffffff;
 }
+
 .dashboard-subtitle {
   margin-left: 15px;
   color: #b0b3b8;
   margin-bottom: 24px;
 }
+
 .dashboard-cards {
   margin-top: 16px;
 }
+
 .dashboard-card {
   width: 29rem;
   background-color: #1f2937 !important;
@@ -186,28 +190,55 @@ async function restoreAccount() {
   border-radius: 8px;
   padding: 5px;
 }
+
 .danger-card {
   width: 90rem;
   border: 1px solid rgba(255, 0, 0, 0.2);
   background-color: #2d2d2d !important;
 }
+
 .danger-title {
   color: #ff4d4d;
 }
+
 .restore-btn {
-  background-color: #facc15 !important; /* Fundo amarelo */
-  color: #ffffff !important;           /* Texto branco */
+  background-color: #facc15 !important;
+  color: #ffffff !important;
   font-weight: 500;
-  text-transform: none;                /* Letra normal */
+  text-transform: none;
 }
+
 .card-title {
   font-weight: 600;
   font-size: 1.1rem;
 }
+
 .card-text {
   color: #b0b3b8;
 }
+
 .v-card-actions.justify-center {
   justify-content: center !important;
 }
+
+/* Ajustes somente para mobile */
+@media (max-width: 768px) {
+  .dashboard-container {
+    width: 95%;
+    margin: 1rem auto;
+    padding: 16px;
+  }
+
+  .dashboard-title,
+  .dashboard-subtitle {
+    margin-left: 0;
+    text-align: center;
+  }
+
+  .dashboard-card,
+  .danger-card {
+    width: 100%;
+  }
+}
 </style>
+

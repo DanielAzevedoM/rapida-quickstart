@@ -14,7 +14,7 @@
       <div class="btn-group-style">
         <!-- Enquanto carrega a checagem de profile, não mostra nada -->
         <template v-if="!checkingProfile">
-          <template v-if="isAuthenticated && hasProfile">
+          <template v-if="isAuthenticated && hasProfile && !isAccountMarkedForDeletion">
             <v-btn
               variant="outlined"
               class="menu-btn"
@@ -25,7 +25,7 @@
             </v-btn>
           </template>
 
-          <template v-else-if="isAuthenticated && !hasProfile">
+          <template v-else-if="isAuthenticated && (isAccountMarkedForDeletion || !hasProfile)">
             <v-btn class="text-white text-none rounded-btn" @click="logoutAndRedirect">
               Sair
             </v-btn>
@@ -94,11 +94,12 @@ const userInitial = computed(() => (auth.user?.email || 'R').charAt(0).toUpperCa
 
 const hasProfile = ref(false)
 const checkingProfile = ref(true)
+const isAccountMarkedForDeletion = ref(false)
 
 const items = [
   { text: 'Início', icon: 'mdi-home', route: '/' },
   { text: 'Dashboard', icon: 'mdi-view-dashboard', route: '/dashboard' },
-  { text: 'Perfil Pessoa', icon: 'mdi-account', route: '/profile/person' }, // será atualizado abaixo
+  { text: 'Perfil Pessoa', icon: 'mdi-account', route: '/profile/person' },
   { text: 'Convites', icon: 'mdi-email', route: '/invitation' },
   { text: 'Configurações', icon: 'mdi-cog', route: '/settings' },
   { text: 'Sair', icon: 'mdi-logout', route: '/logout' }
@@ -115,6 +116,15 @@ onMounted(async () => {
 
       hasProfile.value = data.person || data.company
 
+      // 🔥 Busca o status de exclusão da conta
+      const userRes = await fetch('http://localhost:3000/users/me', {
+        headers: { Authorization: `Bearer ${auth.token}` }
+      })
+      const userData = await userRes.json()
+      if (userData.deletedAt) {
+        isAccountMarkedForDeletion.value = true
+      }
+
       // 🚀 Se tem perfil de pessoa, busca o perfil para pegar o id e atualizar o botão
       if (data.person && auth.user?._id) {
         const resProfile = await fetch(`http://localhost:3000/person-profiles/user/${auth.user._id}`, {
@@ -122,7 +132,6 @@ onMounted(async () => {
         })
         if (resProfile.ok) {
           const profile = await resProfile.json()
-          // Atualiza a rota do botão Perfil Pessoa com o id correto
           const perfilItem = items.find(item => item.text === 'Perfil Pessoa')
           if (perfilItem && profile._id) {
             perfilItem.route = `/profile/person/${profile._id}`
@@ -132,7 +141,6 @@ onMounted(async () => {
         }
       }
 
-      // 🚀 Atualiza auth.user para refletir no botão Menu se necessário
       if (hasProfile.value) {
         await auth.fetchUser()
       }
