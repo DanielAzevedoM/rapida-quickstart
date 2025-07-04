@@ -75,12 +75,12 @@ import { onMounted, ref } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 import { useRouter } from 'vue-router'
 
-definePage({
-  meta: {
-    title: 'Dashboard - Rápida Quickstart',
- 
-  },
-})
+import {
+  hasProfile,
+  getPersonProfile,
+  getUserData,
+  restoreAccount as restoreAccountService
+} from '@/services/userService'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -100,11 +100,7 @@ onMounted(async () => {
   }
 
   try {
-    // Verifica se há perfil de pessoa ou empresa
-    const res = await fetch('http://localhost:3000/users/has-profile', {
-      headers: { Authorization: `Bearer ${auth.token}` }
-    })
-    const data = await res.json()
+    const data = await hasProfile()
 
     if (!data.person && !data.company) {
       window.location.href = '/profile/select'
@@ -112,51 +108,37 @@ onMounted(async () => {
     }
 
     if (data.person) {
-      const personRes = await fetch(`http://localhost:3000/person-profiles/user/${auth.user._id}`, {
-        headers: { Authorization: `Bearer ${auth.token}` }
-      })
-      const personProfile = await personRes.json()
+      const personProfile = await getPersonProfile(auth.user._id)
       profileName.value = personProfile.personName || auth.user.email
     } else {
       profileName.value = auth.user.email
     }
 
-    // Verifica se a conta está marcada para exclusão
-    const userRes = await fetch('http://localhost:3000/users/me', {
-      headers: { Authorization: `Bearer ${auth.token}` }
-    })
-    const userData = await userRes.json()
+    const userData = await getUserData()
     if (userData.deletedAt) {
       accountMarkedForDeletion.value = true
       deletionDate.value = new Date(userData.deletedAt).toLocaleDateString()
     }
   } catch (error) {
-    console.error('Erro ao buscar perfil no dashboard:', error)
+    console.error(error)
   }
 })
 
 async function restoreAccount() {
   try {
-    const res = await fetch('http://localhost:3000/users/restore', {
-      method: 'PATCH',
-      headers: { Authorization: `Bearer ${auth.token}` }
-    })
-
-    if (!res.ok) {
-      throw new Error('Falha ao restaurar a conta')
-    }
-
+    await restoreAccountService()
     accountMarkedForDeletion.value = false
     deletionDate.value = ''
     snackbar.value.text = 'Conta restaurada com sucesso!'
     snackbar.value.show = true
   } catch (error) {
-    console.error('Erro ao restaurar conta:', error)
+    console.error(error)
     snackbar.value.text = 'Erro ao restaurar a conta.'
     snackbar.value.show = true
   }
 }
 </script>
+
 
 <style scoped>
 .dashboard-container {
