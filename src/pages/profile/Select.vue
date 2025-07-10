@@ -53,6 +53,7 @@
 import { useAuthStore } from '@/stores/authStore'
 import { useRouter } from 'vue-router'
 import { onMounted, ref } from 'vue'
+import { hasProfile } from '@/services/userService'
 
 definePage({
   meta: {
@@ -79,10 +80,7 @@ onMounted(async () => {
   }
 
   try {
-    const res = await fetch('http://localhost:3000/users/has-profile', {
-      headers: { Authorization: `Bearer ${auth.token}` }
-    })
-    const data = await res.json()
+    const data = await hasProfile();
     console.log('Checagem de perfil:', data)
 
     if (data.person || data.company) {

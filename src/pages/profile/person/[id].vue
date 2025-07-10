@@ -50,6 +50,7 @@ import AbaEnderecos from '@/components/formTabs/AbaEnderecos.vue'
 import AbaFormacao from '@/components/formTabs/AbaFormacao.vue'
 import AbaBancarios from '@/components/formTabs/AbaBancarios.vue'
 import { user } from '@/utils/personFormFields'
+import { getProfile, getUserData, updateAccount } from '@/services/userService'
 
 definePage({
   meta: {
@@ -94,10 +95,7 @@ onMounted(async () => {
   }
 
   // 🔥 Verifica se a conta está marcada para exclusão
-  const userRes = await fetch('http://localhost:3000/users/me', {
-    headers: { Authorization: `Bearer ${auth.token}` }
-  })
-  const userData = await userRes.json()
+  const userData = await getUserData()
   if (userData.deletedAt) {
     router.replace('/dashboard')
     return
@@ -108,13 +106,7 @@ onMounted(async () => {
 
 async function checkAndLoadProfile() {
   try {
-    const res = await fetch(`http://localhost:3000/person-profiles/${id}`, {
-      headers: { Authorization: `Bearer ${auth.token}` },
-    })
-
-    if (!res.ok) throw new Error('Erro ao buscar perfil')
-
-    const profile = await res.json()
+    const profile = await getProfile(id)
 
     if (profile.birthday) profile.birthday = profile.birthday.split('T')[0]
     if (profile.rgIssuanceDate) profile.rgIssuanceDate = profile.rgIssuanceDate.split('T')[0]
@@ -171,20 +163,7 @@ async function enviar() {
 
   loading.value = true
   try {
-    const res = await fetch(`http://localhost:3000/person-profiles/${id}`, {
-      method: 'PATCH',
-      headers: {
-        Authorization: `Bearer ${auth.token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(form),
-    })
-
-    if (!res.ok) {
-      const data = await res.json()
-      throw new Error(data.message || 'Erro ao salvar perfil')
-    }
-
+    await updateAccount(id, form)
     showSuccess('Perfil atualizado com sucesso!')
     setTimeout(() => {
       window.location.href = '/dashboard'

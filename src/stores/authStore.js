@@ -65,7 +65,6 @@ export const useAuthStore = defineStore('auth', {
         if (!res.ok) throw new Error('Erro ao buscar usuário')
         const data = await res.json()
 
-        // No Svelte, o user sempre tem userId, email, availableRoles etc
         this.user = data
         this.isAuthenticated = true
 

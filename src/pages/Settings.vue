@@ -165,6 +165,8 @@ import { ref, reactive, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 import { useRouter } from 'vue-router'
 
+import { changePassword, deleteAccount, getUserData, hasProfile, restoreAccount as restoreAccountService } from '@/services/userService'
+
 definePage({
   meta: {
     title: 'Configurações - Rápida Quickstart',
@@ -182,6 +184,7 @@ const showDeleteAccountModal = ref(false)
 
 const accountMarkedForDeletion = ref(false)
 const deletionDate = ref('')
+
 const snackbar = ref({
   show: false,
   text: '',
@@ -205,20 +208,14 @@ onMounted(async () => {
 
   try {
     // Verifica se há perfil
-    const res = await fetch('http://localhost:3000/users/has-profile', {
-      headers: { Authorization: `Bearer ${auth.token}` }
-    })
-    const data = await res.json()
+    const data = await hasProfile()
     if (!data.person && !data.company) {
       router.replace('/profile/select')
       return
     }
 
     // Verifica se a conta está marcada para exclusão
-    const userRes = await fetch('http://localhost:3000/users/me', {
-      headers: { Authorization: `Bearer ${auth.token}` }
-    })
-    const userData = await userRes.json()
+    const userData = await getUserData();
     if (userData.deletedAt) {
       accountMarkedForDeletion.value = true
       deletionDate.value = new Date(userData.deletedAt).toLocaleDateString()
@@ -232,15 +229,8 @@ onMounted(async () => {
 
 async function restoreAccount() {
   try {
-    const res = await fetch('http://localhost:3000/users/restore', {
-      method: 'PATCH',
-      headers: { Authorization: `Bearer ${auth.token}` }
-    })
 
-    if (!res.ok) {
-      throw new Error('Falha ao restaurar a conta')
-    }
-
+    await restoreAccountService();
     accountMarkedForDeletion.value = false
     deletionDate.value = ''
     snackbar.value.text = 'Conta restaurada com sucesso!'
@@ -269,25 +259,10 @@ async function submitChangePassword() {
 
   loading.value = true
   try {
-    const res = await fetch('http://localhost:3000/users/change-password', {
-      method: 'PATCH',
-      headers: {
-        Authorization: `Bearer ${auth.token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        oldPassword: passwordForm.current,
-        newPassword: passwordForm.new
-      })
-    })
-
-    if (!res.ok) {
-      const err = await res.json()
-      throw new Error(err.message || 'Erro ao alterar senha.')
-    }
-
+    await changePassword(passwordForm)
     alert('Senha alterada com sucesso!')
     showChangePasswordModal.value = false
+    window.location.href = '/settings'
   } catch (error) {
     alert(error.message)
   } finally {
@@ -298,18 +273,7 @@ async function submitChangePassword() {
 async function confirmDeleteAccount() {
   loading.value = true
   try {
-    const res = await fetch('http://localhost:3000/users', {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${auth.token}`
-      }
-    })
-
-    if (!res.ok) {
-      const err = await res.json()
-      throw new Error(err.message || 'Erro ao excluir conta.')
-    }
-
+    await deleteAccount()
     snackbar.value.text = 'Conta marcada para exclusão. Você pode restaurá-la em até 90 dias.'
     snackbar.value.show = true
     window.location.href = '/settings'

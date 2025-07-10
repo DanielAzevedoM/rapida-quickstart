@@ -51,6 +51,7 @@ import AbaEnderecos from '@/components/formTabs/AbaEnderecos.vue'
 import AbaFormacao from '@/components/formTabs/AbaFormacao.vue'
 import AbaBancarios from '@/components/formTabs/AbaBancarios.vue'
 import { user } from '@/utils/personFormFields'
+import { createPersonProfile, hasProfile } from '@/services/userService'
 
 definePage({
   meta: {
@@ -96,10 +97,8 @@ onMounted(async () => {
 
 async function checkProfile() {
   try {
-    const res = await fetch('http://localhost:3000/users/has-profile', {
-      headers: { Authorization: `Bearer ${auth.token}` }
-    })
-    const data = await res.json()
+    
+    const data = await hasProfile()
     console.log('Checagem de perfil:', data)
 
     if (data.person) {
@@ -150,20 +149,7 @@ async function enviar() {
 
   loading.value = true
   try {
-    const res = await fetch('http://localhost:3000/person-profiles', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${auth.token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(form)
-    })
-
-    if (!res.ok) {
-      const data = await res.json()
-      throw new Error(data.message || 'Erro ao salvar perfil')
-    }
-
+    await createPersonProfile(form)
     showSuccess('Perfil salvo com sucesso!')
     setTimeout(() => {
       window.location.href = '/dashboard'

@@ -83,6 +83,8 @@
 import { onMounted, ref } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 import { useRouter } from 'vue-router'
+import { hasProfile } from '@/services/userService'
+import { deleteInvite, getInvitations, sendInvitation } from '@/services/invitationService'
 
 definePage({
   meta: {
@@ -113,10 +115,7 @@ onMounted(async () => {
 
   try {
     // Checagem de perfil
-    const res = await fetch('http://localhost:3000/users/has-profile', {
-      headers: { Authorization: `Bearer ${auth.token}` },
-    })
-    const data = await res.json()
+    const data = await hasProfile()
 
     if (!data.person && !data.company) {
       router.replace('/profile/select')
@@ -134,14 +133,8 @@ onMounted(async () => {
 
 async function loadInvitations() {
   try {
-    const res = await fetch('http://localhost:3000/invitations', {
-      headers: { Authorization: `Bearer ${auth.token}` },
-    })
-
-    if (!res.ok) throw new Error('Erro ao carregar convites')
-
-    const responseJson = await res.json()
-    invitations.value = responseJson.data.map(invite => ({
+    const invitationsData = await getInvitations()
+    invitations.value = invitationsData.data.map(invite => ({
       id: invite.id || invite._id,
       email: invite.email,
       role: invite.role,
@@ -165,16 +158,7 @@ function editInvitation(inviteId) {
 
 async function resendInvitation(inviteId) {
   try {
-    const res = await fetch(`http://localhost:3000/invitations/${inviteId}/resend`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${auth.token}` },
-    })
-
-    if (!res.ok) {
-      const data = await res.json()
-      throw new Error(data.message || 'Erro ao reenviar convite')
-    }
-
+    await sendInvitation(inviteId)
     showSnackbarMessage('Convite reenviado com sucesso!', 'success')
   } catch (error) {
     console.error('Erro ao reenviar convite:', error)
@@ -187,16 +171,7 @@ async function deleteInvitation(inviteId) {
   if (!confirmed) return
 
   try {
-    const res = await fetch(`http://localhost:3000/invitations/${inviteId}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${auth.token}` },
-    })
-
-    if (!res.ok) {
-      const data = await res.json()
-      throw new Error(data.message || 'Erro ao excluir convite')
-    }
-
+    await deleteInvite(inviteId)
     // Remove o convite da lista
     invitations.value = invitations.value.filter(invite => invite.id !== inviteId)
     showSnackbarMessage('Convite excluído com sucesso!', 'success')

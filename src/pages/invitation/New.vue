@@ -61,6 +61,8 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 import { useRouter } from 'vue-router'
+import { hasProfile } from '@/services/userService'
+import { createInvitation } from '@/services/invitationService'
 
 definePage({
   meta: {
@@ -98,10 +100,7 @@ onMounted(async () => {
 
   try {
     // Checagem de perfil
-    const res = await fetch('http://localhost:3000/users/has-profile', {
-      headers: { Authorization: `Bearer ${auth.token}` }
-    })
-    const data = await res.json()
+    const data = await hasProfile()
     console.log('Checagem de perfil:', data)
 
     if (!data.person && !data.company) {
@@ -143,20 +142,7 @@ async function enviar() {
 
   loading.value = true
   try {
-    const res = await fetch('http://localhost:3000/invitations', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${auth.token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(form),
-    })
-
-    if (!res.ok) {
-      const data = await res.json()
-      throw new Error(data.message || 'Erro ao enviar convite.')
-    }
-
+    await createInvitation(form)
     showSuccess('Convite enviado com sucesso!')
     setTimeout(() => {
       router.push('/invitation')

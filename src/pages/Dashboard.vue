@@ -131,6 +131,7 @@ async function restoreAccount() {
     deletionDate.value = ''
     snackbar.value.text = 'Conta restaurada com sucesso!'
     snackbar.value.show = true
+    window.location.href = '/dashboard'
   } catch (error) {
     console.error(error)
     snackbar.value.text = 'Erro ao restaurar a conta.'

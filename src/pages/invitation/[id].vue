@@ -63,6 +63,8 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 import { useRouter, useRoute } from 'vue-router'
+import { hasProfile } from '@/services/userService'
+import { getInvite, updateInvite } from '@/services/invitationService'
 
 definePage({
   meta: {
@@ -102,10 +104,7 @@ onMounted(async () => {
 
   try {
     // Checagem de perfil
-    const res = await fetch('http://localhost:3000/users/has-profile', {
-      headers: { Authorization: `Bearer ${auth.token}` }
-    })
-    const data = await res.json()
+    const data = await hasProfile()
     console.log('Checagem de perfil:', data)
 
     if (!data.person && !data.company) {
@@ -127,12 +126,7 @@ onMounted(async () => {
 
 async function carregarConvite(id) {
   try {
-    const res = await fetch(`http://localhost:3000/invitations/${id}`, {
-      headers: { Authorization: `Bearer ${auth.token}` },
-    })
-    if (!res.ok) throw new Error('Erro ao buscar convite')
-
-    const data = await res.json()
+    const data = await getInvite(id)
     form.email = data.email
     form.role = data.role
   } catch (error) {
@@ -174,19 +168,8 @@ async function enviar() {
       ? `http://localhost:3000/invitations/${route.params.id}`
       : 'http://localhost:3000/invitations'
 
-    const res = await fetch(url, {
-      method,
-      headers: {
-        'Authorization': `Bearer ${auth.token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(form),
-    })
-
-    if (!res.ok) {
-      const data = await res.json()
-      throw new Error(data.message || 'Erro ao salvar convite.')
-    }
+    
+    await updateInvite(method, url, form)
 
     showSuccess(isEditing.value ? 'Convite atualizado!' : 'Convite criado!')
     setTimeout(() => {
